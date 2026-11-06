@@ -123,18 +123,20 @@
   // (If we want to also keep the ISO-formatted times, we'll need to
   // stash them in hidden fields.) 
   function calc_times(control) {
-    var km = control.find("input[name='km']").val();
+    var km = parseFloat(control.find("input[name='km']").val());
     var open_time_field = control.find("input[name='open']");
     var close_time_field = control.find("input[name='close']");
+    var begin_date = $("#begin_date").val();
+    var begin_time = $("#begin_time").val();
     
-    $.getJSON(TIME_CALC_URL, { km: km }, 
+    $.getJSON(TIME_CALC_URL, {km: km, brevet_dist: $("#brevet_dist_km").val(), begin_time: begin_date + "T" + begin_time}, 
       // response handler
       function(data) {
          var times = data.result;
          console.log("Got a response: " +  times);
          console.log("Response.open = " + times.open);
-         open_time_field.val( moment(times.open).format("ddd M/D H:mm"));
-         close_time_field.val( moment(times.close).format("ddd M/D H:mm"));
+         open_time_field.val( moment(times.open.substring(0, 19)).format("ddd M/D H:mm")); // Drop the UTC so moment doesn't convert to the browser's timezone
+         close_time_field.val( moment(times.close.substring(0, 19)).format("ddd M/D H:mm"));
        } // end of handler function
      );// End of getJSON
     }

@@ -52,15 +52,17 @@ def _calc_times():
     Expects one URL-encoded argument, the number of miles.
     """
     app.logger.debug("Got a JSON request")
-    km = request.args.get('km', 999, type=float)
+    km = request.args.get('km', type=float)
+    brevet_dist = request.args.get('brevet_dist', 200, type=int)
+    begin_time = request.args.get('begin_time', type=str)
     app.logger.debug("km={}".format(km))
     app.logger.debug("request.args: {}".format(request.args))
-    # FIXME: These probably aren't the right open and close times
-    # and brevets may be longer than 200km
-    open_time = acp_times.open_time(km, 200, arrow.now().isoformat)
-    close_time = acp_times.close_time(km, 200, arrow.now().isoformat)
-    result = {"open": open_time, "close": close_time}
-    return flask.jsonify(result=result)
+    if km is None or km < 0 or not begin_time:
+        return flask.jsonify(result={"open": "", "close": ""})
+    
+    open_time = acp_times.open_time(km, brevet_dist, begin_time)
+    close_time = acp_times.close_time(km, brevet_dist, begin_time)
+    return flask.jsonify(result={"open": open_time, "close": close_time})
 
 
 #############
